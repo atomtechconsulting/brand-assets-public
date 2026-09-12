@@ -1,32 +1,34 @@
 #!/usr/bin/env node
 /**
- * Exporta display/index.html a GIF (o MP4) conservando calidad y formato 16:9.
+ * Exporta display/index.html a GIF (o MP4) conservando calidad y proporción.
  *
  * Cómo conserva la calidad
  * ------------------------
  * · La página expone `window.__display.renderAt(ms)`, así que cada fotograma se
  *   renderiza en TIEMPO VIRTUAL exacto. No se graba la pantalla en tiempo real:
  *   no hay fotogramas perdidos ni tirones, y el resultado es reproducible.
- * · El escenario mide siempre 1920×1080, y la captura usa un viewport 16:9,
- *   de modo que la proporción se mantiene a cualquier --width.
- * · Para GIF (limitado a 256 colores) se hace el proceso en dos pasadas con
- *   ffmpeg: primero se calcula una paleta óptima del vídeo completo
- *   (palettegen) y después se aplica con difuminado (paletteuse). Así los
- *   degradados de marca no producen bandas. Si no hay ffmpeg, se usa un
- *   codificador en JavaScript puro como respaldo.
+ * · La página también declara el tamaño de su escenario (1080×1920, vertical).
+ *   El alto de salida sale de ahí, nunca de una proporción supuesta, así que
+ *   el encuadre se mantiene intacto a cualquier --width.
+ * · Para GIF (limitado a 256 colores) se codifica en dos pasadas con ffmpeg:
+ *   primero se calcula una paleta óptima del bucle (palettegen) y después se
+ *   aplica con difuminado ordenado (paletteuse). Así los degradados de marca
+ *   no producen bandas. Si no hay ffmpeg, se usa un codificador en JavaScript
+ *   puro como respaldo.
  *
  * Uso
  * ---
  *   npm install
- *   npm run export                       # bucle completo a 1280 px
- *   node export-gif.mjs --width 1920     # máxima resolución
+ *   npm run export                       # bucle completo a 720 px de ancho
+ *   node export-gif.mjs --width 1080     # máxima resolución
  *   node export-gif.mjs --slide 3        # solo la diapositiva 3
  *   node export-gif.mjs --format mp4     # vídeo (mucho más ligero)
  *
  * Opciones
  * --------
  *   --out <fichero>   Salida. Por defecto atomtech-display.gif / .mp4
- *   --width <px>      Ancho en píxeles; el alto se deriva del 16:9. Por defecto 1280.
+ *   --width <px>      Ancho en píxeles; el alto sale de la proporción real
+ *                     del escenario. Por defecto 720 (→ 1280 de alto).
  *   --fps <n>         Fotogramas por segundo. Por defecto 12.5.
  *                     En GIF los retardos van en centésimas de segundo, así que
  *                     conviene usar 10, 12.5, 20 o 25 para que el bucle no derive.
@@ -56,8 +58,8 @@ const FORMAT = (args.format ?? "gif").toLowerCase();
 if (!["gif", "mp4"].includes(FORMAT)) fail(`--format debe ser gif o mp4, no "${FORMAT}"`);
 
 // Ancho par: los códecs de vídeo exigen dimensiones pares.
-const WIDTH = Math.round(+(args.width ?? 1280) / 2) * 2;
-const HEIGHT = Math.round((WIDTH * 9) / 16 / 2) * 2;
+// El alto no se asume: sale de la proporción real del escenario (vertical o apaisado).
+const WIDTH = Math.round(+(args.width ?? 720) / 2) * 2;
 const FPS = +(args.fps ?? 12.5);
 const OUT = args.out ?? `atomtech-display.${FORMAT}`;
 
@@ -116,12 +118,16 @@ if (FORMAT === "mp4" && !ffmpeg) fail("exportar a MP4 requiere ffmpeg. Instálal
 
 /* ————— Abrir la página y leer la línea de tiempo ————— */
 const browser = await chromium.launch({ executablePath: findChromium() });
-const page = await browser.newPage({ viewport: { width: WIDTH, height: HEIGHT }, deviceScaleFactor: 1 });
+const page = await browser.newPage({ viewport: { width: WIDTH, height: WIDTH }, deviceScaleFactor: 1 });
 await page.goto(pageUrl);
 await page.evaluate(() => document.fonts.ready);
 await page.waitForFunction(() => window.__display, null, { timeout: 15000 });
 
 const info = await page.evaluate(() => window.__display);
+
+// La página declara el tamaño de su escenario: el vídeo hereda esa proporción exacta.
+const HEIGHT = Math.round((WIDTH * info.h) / info.w / 2) * 2;
+await page.setViewportSize({ width: WIDTH, height: HEIGHT });
 
 let startMs = +(args.start ?? 0) * 1000;
 let durMs = args.duration ? +args.duration * 1000 : info.total - startMs;
@@ -209,7 +215,7 @@ try {
       // menos peso sin tocar la calidad de lo que se ve.
       await runFfmpeg(
         ["-y", ...IN_ARGS, "-i", palette,
-         "-lavfi", "paletteuse=dither=sierra2_4a:diff_mode=rectangle",
+         "-lavfi", "paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle",
          "-loop", "0", OUT],
         async stdin => {
           for (let i = 0; i < frameCount; i++) {
