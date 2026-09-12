@@ -28,3 +28,8 @@ Desktop.ini
 .idea/
 .vscode/
 *.sublime-workspace
+
+# Dependencies and exports of display/ (the presentation itself has none)
+node_modules/
+display/*.gif
+display/*.mp4
