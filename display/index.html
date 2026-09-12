@@ -1,0 +1,840 @@
+<!-- Atomtech · pantalla vertical de puerta · 1080×1920 -->
+<title>Escaparate Atomtech</title>
+<meta name="description" content="Presentación vertical en bucle para la pantalla del despacho de Atomtech">
+<style>
+  /* Tipografías reales de atomtech.es: Archivo para titulares, Chivo Mono
+     para etiquetas y datos técnicos. Empotradas: la pantalla no necesita red. */
+  @font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: block;
+    src: url("assets/fonts/archivo-var-latin.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "Chivo Mono";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: block;
+    src: url("assets/fonts/chivomono-var-latin.woff2") format("woff2");
+  }
+
+  :root {
+    /* El acento de atomtech.es se llama "flame" en su propio CSS */
+    --flame: #FF4F2B;
+    --ember: #FF8A5C;
+    --ink: #0A0B0C;
+    --ink-2: #101113;
+    --navy: #1B2A4A;
+    --navy-2: #2A3F6B;
+    --sand: #BF8150;
+    --sage: #9AB973;
+    --text: #F5F5F5;
+    /* Gris cálido, desplazado hacia el acento: no es un gris neutro de fábrica */
+    --mute: #8C8489;
+    --mute-2: #C3BCBE;
+    --hair: rgba(245, 240, 238, 0.11);
+
+    --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --mono: "Chivo Mono", ui-monospace, SFMono-Regular, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+
+  body {
+    background: #000;
+    color: var(--text);
+    font-family: var(--display);
+    overflow: hidden;
+    cursor: none;
+  }
+
+  /* ————— Escenario vertical fijo, escalado a la ventana ————— */
+  #viewport { position: fixed; inset: 0; background: #000; }
+
+  #stage {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1080px;
+    height: 1920px;
+    background: var(--ink);
+    overflow: hidden;
+    transform-origin: top left;
+  }
+
+  #bg { position: absolute; inset: 0; }
+
+  /* ————— Aurora del header, como el hero de la web ————— */
+  #aurora {
+    position: absolute;
+    top: -640px; left: 50%;
+    width: 1900px; height: 1400px;
+    margin-left: -950px;
+    pointer-events: none;
+    background:
+      conic-gradient(from 290deg at 50% 46%,
+        rgba(255, 79, 43, 0) 0deg,
+        rgba(255, 79, 43, 0.40) 42deg,
+        rgba(255, 138, 92, 0.20) 76deg,
+        rgba(42, 63, 107, 0.34) 128deg,
+        rgba(255, 79, 43, 0) 190deg,
+        rgba(255, 79, 43, 0) 360deg);
+    filter: blur(78px);
+    opacity: 0.85;
+  }
+  #aurora-veil {
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 720px;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(10, 11, 12, 0) 34%, var(--ink) 96%);
+  }
+
+  /* ————— Cromo permanente ————— */
+  #head {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 250px;
+    padding: 0 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 30;
+  }
+  #head img { height: 200px; margin-left: -58px; }
+  #head .meta {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 21px;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    line-height: 1.9;
+    color: var(--mute-2);
+  }
+  #head .meta .hot { color: var(--flame); }
+
+  #foot {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 210px;
+    z-index: 30;
+    background: linear-gradient(180deg, rgba(10, 11, 12, 0) 0%, var(--ink) 46%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: 46px;
+  }
+  #meter { display: flex; gap: 7px; padding: 0 72px 30px; }
+  #meter .seg {
+    flex: 1; height: 4px;
+    background: rgba(245, 240, 238, 0.13);
+    overflow: hidden;
+  }
+  #meter .seg i { display: block; height: 100%; width: 0; background: var(--flame); }
+  #meter .seg.done i { width: 100%; background: rgba(255, 79, 43, 0.42); }
+
+  #ticker { overflow: hidden; white-space: nowrap; }
+  #ticker-track {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 25px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mute-2);
+    will-change: transform;
+  }
+  #ticker-track .sep { color: var(--flame); padding: 0 30px; }
+  #ticker-track b { font-weight: 500; color: var(--text); }
+
+  /* ————— Diapositivas ————— */
+  .slide {
+    position: absolute;
+    inset: 250px 0 210px 0;
+    padding: 0 72px 20px;
+    display: none;
+    flex-direction: column;
+    z-index: 10;
+  }
+  .slide.on { display: flex; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--flame);
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+  }
+  .eyebrow .idx { color: var(--mute); }
+
+  h2 {
+    font-size: 104px;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+    margin: 26px 0 0;
+    text-wrap: balance;
+  }
+  h2 .thin { font-weight: 300; color: var(--mute-2); }
+  h2 .hot { color: var(--flame); }
+
+  .lead {
+    font-size: 33px;
+    font-weight: 400;
+    line-height: 1.44;
+    color: var(--mute-2);
+    margin-top: 26px;
+    max-width: 880px;
+  }
+  .lead b { font-weight: 600; color: var(--text); }
+
+  /* Zona de tarjetas: centra su contenido en el alto sobrante */
+  .stack {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 44px;
+  }
+  /* Cada tarjeta reparte el alto sobrante a partes iguales. Así el bloque
+     ocupa la misma franja en las ocho diapositivas y las alturas no bailan
+     según lo que ocupe el texto. */
+  .stack > .card { flex: 1 1 0; min-height: 0; }
+
+  /* ————— Tarjetas a todo el ancho, tonos intercalados ————— */
+  .card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+    padding: 34px 42px;
+    display: flex;
+    align-items: center;
+    gap: 34px;
+    will-change: transform, opacity;
+  }
+  /* Luz que barre el borde de entrada mientras la tarjeta aterriza */
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(var(--edge-dir, 270deg),
+      rgba(255, 79, 43, 0.55) 0%, rgba(255, 79, 43, 0) 46%);
+    opacity: var(--edge, 0);
+  }
+
+  .t-glass { background: rgba(245, 240, 238, 0.045); border-left: 3px solid var(--hair); }
+  .t-flame {
+    background: linear-gradient(92deg, rgba(255, 79, 43, 0.16), rgba(255, 79, 43, 0.03) 72%);
+    border-left: 3px solid var(--flame);
+  }
+  .t-navy {
+    background: linear-gradient(92deg, rgba(42, 63, 107, 0.44), rgba(27, 42, 74, 0.12) 78%);
+    border-left: 3px solid var(--navy-2);
+  }
+
+  .card .ico { width: 54px; height: 54px; color: var(--flame); flex: none; }
+  .card .ico svg { width: 100%; height: 100%; }
+  .card .c-body { flex: 1; min-width: 0; }
+  .card .c-kick {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin-bottom: 7px;
+  }
+  .card .c-title { font-size: 44px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
+  .card .c-desc { font-size: 27px; font-weight: 400; line-height: 1.36; color: var(--mute-2); margin-top: 8px; }
+  .card .c-num {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--mute);
+    flex: none;
+    align-self: flex-start;
+  }
+
+  /* — 1 · Intro — */
+  #s-intro { justify-content: center; align-items: center; text-align: center; }
+  #s-intro .mark { width: 880px; margin: 0 auto; display: block; }
+  #s-intro .rule {
+    width: 0; height: 2px; margin: 58px auto 54px;
+    background: linear-gradient(90deg, transparent, var(--flame), transparent);
+  }
+  #s-intro .claim {
+    font-size: 82px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.06;
+  }
+  #s-intro .claim .hot { color: var(--flame); }
+  #s-intro .claim .thin { font-weight: 300; color: var(--mute-2); }
+  #s-intro .under {
+    margin-top: 46px;
+    font-family: var(--mono);
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--mute-2);
+  }
+  #s-intro .under em { font-style: normal; color: var(--flame); }
+
+  /* — 2 · Quiénes somos — */
+  #s-quienes .quote {
+    font-size: 46px;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    margin-top: 40px;
+    padding-left: 34px;
+    border-left: 3px solid var(--flame);
+    text-wrap: balance;
+  }
+  #s-quienes .quote b { color: var(--flame); font-weight: 700; }
+  /* — 5 · Clientes — */
+  .cli { padding: 22px 44px; gap: 44px; }
+  .cli .logo { width: 292px; height: 146px; flex: none; }
+  /* Medidas absolutas, no porcentajes: dentro de una rejilla con los ítems
+     centrados el navegador resuelve height:100% como auto, y los logos
+     verticales (KAI KOA) crecían hasta que la tarjeta los recortaba.
+     El filtro deja la silueta blanca, igual que el muro de logos de atomtech.es. */
+  .cli .logo img {
+    width: 292px; height: 146px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+    opacity: 0.92;
+  }
+  .cli .c-title { font-size: 44px; }
+  .cli .sector {
+    font-family: var(--mono);
+    font-size: 20px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--mute); margin-top: 12px;
+  }
+
+  /* — 6 · Casos de éxito — */
+  .metric { padding: 42px 44px; gap: 44px; align-items: center; }
+  .metric .big {
+    font-family: var(--mono);
+    font-size: 132px; font-weight: 500;
+    letter-spacing: -0.06em; line-height: 0.92;
+    white-space: nowrap;
+    flex: none;
+    width: 330px;
+  }
+  .metric .big small { font-size: 34px; letter-spacing: 0; margin-left: 4px; }
+  .metric.t-flame .big { color: var(--flame); }
+  .metric.t-navy .big { color: #9FB6EE; }
+  .metric.t-glass .big { color: var(--ember); }
+  .metric .what { font-size: 40px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.18; }
+  .metric .who { font-size: 27px; color: var(--mute-2); line-height: 1.36; margin-top: 10px; }
+
+  /* — 7 · Medios — */
+  /* La tarjeta de prensa apila en columna en vez de en fila como las demás */
+  .press { flex-direction: column; align-items: stretch; justify-content: center; gap: 0; padding: 36px 44px; }
+  .press .q { font-size: 38px; font-weight: 500; line-height: 1.3; letter-spacing: -0.018em; margin-top: 14px; }
+  .press .foot-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 30px; margin-top: 26px;
+  }
+  .press .src {
+    font-family: var(--mono);
+    font-size: 21px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--flame);
+  }
+  .press .src-logo { height: 52px; }
+  .press .src-logo img { height: 100%; filter: brightness(0) invert(1); opacity: 0.9; }
+
+  /* — 8 · Contacto — */
+  .ct { padding: 36px 44px; }
+  .ct .ico { width: 46px; height: 46px; }
+  .ct .c-title { font-size: 48px; font-weight: 600; letter-spacing: -0.01em; }
+  .ct .c-desc { margin-top: 6px; font-size: 27px; }
+  .ct.big .c-title { font-size: 66px; font-weight: 700; letter-spacing: -0.03em; }
+
+  [data-anim] { will-change: transform, opacity; }
+</style>
+
+<div id="viewport">
+  <div id="stage">
+    <canvas id="bg" width="1080" height="1920"></canvas>
+    <div id="aurora"></div>
+    <div id="aurora-veil"></div>
+
+    <header id="head">
+      <img src="assets/atomtech-blanco.svg" alt="Atomtech">
+      <div class="meta">
+        Arrecife · Lanzarote<br>
+        <span class="hot">Software · Big Data · IA</span>
+      </div>
+    </header>
+
+    <!-- 1 · Intro -->
+    <section class="slide" id="s-intro">
+      <img class="mark" src="assets/atomtech-blanco.svg" alt="Atomtech" data-anim="rise">
+      <div class="rule" data-anim="rule" data-delay="320"></div>
+      <p class="claim" data-anim="rise" data-delay="480">Desarrollo de software<br>y <span class="hot">Big Data</span><br><span class="thin">asistido por IA.</span></p>
+      <p class="under" data-anim="rise" data-delay="1000">El software que <em>tu operación</em> necesita</p>
+    </section>
+
+    <!-- 2 · Quiénes somos -->
+    <section class="slide" id="s-quienes">
+      <p class="eyebrow" data-anim="rise"><span class="idx">02</span> Quiénes somos</p>
+      <h2 data-anim="rise" data-delay="120">Tecnología útil,<br><span class="thin">hecha en Canarias.</span></h2>
+      <p class="lead" data-anim="rise" data-delay="260">Construimos <b>software a medida y plataformas de Big Data</b>, con inteligencia artificial aplicada donde aporta valor. Equipo senior, resultados medibles y proyectos que se amortizan solos.</p>
+      <p class="quote" data-anim="rise" data-delay="420">«No necesitas más herramientas sueltas. Necesitas <b>software hecho para tu negocio</b>.»</p>
+      <div class="stack" data-seq="160" data-base="620" data-tones="flame,navy,glass">
+        <div class="card metric">
+          <div class="big"><span data-count="20" data-cdelay="800">0</span><small>años</small></div>
+          <div class="c-body"><div class="what">de experiencia técnica entre los dos socios</div></div>
+        </div>
+        <div class="card metric">
+          <div class="big"><span data-count="12" data-cdelay="950">0</span><small>meses</small></div>
+          <div class="c-body"><div class="what">construyendo software desde Lanzarote</div></div>
+        </div>
+        <div class="card metric">
+          <div class="big"><span data-count="4" data-cdelay="1100">0</span><small>sectores</small></div>
+          <div class="c-body"><div class="what">retail · logística · salud · servicios</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · Servicios -->
+    <section class="slide" id="s-servicios">
+      <p class="eyebrow" data-anim="rise"><span class="idx">03</span> Qué hacemos</p>
+      <h2 data-anim="rise" data-delay="120">Servicios</h2>
+      <div class="stack" data-seq="150" data-base="330" data-tones="flame,glass,navy,glass,flame,glass,navy">
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></div>
+          <div class="c-body"><div class="c-kick">Nuestro núcleo</div><div class="c-title">Desarrollo de software a medida</div><div class="c-desc">Aplicaciones web y sistemas construidos para tu operación real, no plantillas.</div></div>
+          <div class="c-num">01</div>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></div>
+          <div class="c-body"><div class="c-title">Big Data y analítica</div><div class="c-desc">Plataformas de datos, cuadros de mando y KPIs en tiempo real.</div></div>
+          <div class="c-num">02</div>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3.4M12 18.6V22M2 12h3.4M18.6 12H22M4.9 4.9l2.4 2.4M16.7 16.7l2.4 2.4M19.1 4.9l-2.4 2.4M7.3 16.7l-2.4 2.4"/></svg></div>
+          <div class="c-body"><div class="c-title">Inteligencia artificial</div><div class="c-desc">Agentes, RAG sobre tus documentos, análisis de texto y predicción.</div></div>
+          <div class="c-num">03</div>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10a4 4 0 0 1 0 8H7"/><path d="M7 4l-3 3 3 3"/><path d="M17 12l3 3-3 3"/></svg></div>
+          <div class="c-body"><div class="c-title">Automatización de procesos</div><div class="c-desc">Flujos entre sistemas, sin tareas repetitivas ni errores de copiar y pegar.</div></div>
+          <div class="c-num">04</div>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z"/></svg></div>
+          <div class="c-body"><div class="c-title">Consultoría tecnológica</div><div class="c-desc">Arquitectura y estrategia con criterio senior.</div></div>
+          <div class="c-num">05</div>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5l9-4 9 4-9 4z"/><path d="M7 10.8V16c0 1.5 2.2 2.6 5 2.6s5-1.1 5-2.6v-5.2"/><path d="M21 7.5v6"/></svg></div>
+          <div class="c-body"><div class="c-title">Formación</div><div class="c-desc">Talleres prácticos para que tu equipo use estas herramientas.</div></div>
+          <div class="c-num">06</div>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5.4"/><path d="M9.8 12.3l1.7 1.7 3-3.6"/></svg></div>
+          <div class="c-body"><div class="c-kick">Empieza aquí · 499 €</div><div class="c-title">Diagnóstico de digitalización</div><div class="c-desc">Auditoría de madurez con hoja de ruta a 3–6 meses.</div></div>
+          <div class="c-num">07</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 · Productos -->
+    <section class="slide" id="s-productos">
+      <p class="eyebrow" data-anim="rise"><span class="idx">04</span> Producto propio</p>
+      <h2 data-anim="rise" data-delay="120">Nuestras <span class="hot">plataformas</span></h2>
+      <div class="stack" data-seq="170" data-base="330" data-tones="flame,glass,navy,glass,flame">
+        <div class="card">
+          <div class="c-body">
+            <div class="c-kick">Documentos · LLM</div>
+            <div class="c-title">RAG-PRO</div>
+            <div class="c-desc">Conecta tus documentos a un modelo de lenguaje y pregúntales en lenguaje natural.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="c-body">
+            <div class="c-kick">Licitaciones · Subvenciones</div>
+            <div class="c-title">LICITA-PRO</div>
+            <div class="c-desc">Vigila licitaciones públicas y ayudas, y las analiza con IA.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="c-body">
+            <div class="c-kick">Salud</div>
+            <div class="c-title">MAGEC</div>
+            <div class="c-desc">Planificación automática de turnos hospitalarios.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="c-body">
+            <div class="c-kick">Orquestación</div>
+            <div class="c-title">VULCAN</div>
+            <div class="c-desc">Motor de flujos de trabajo entre sistemas que no se hablan.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="c-body">
+            <div class="c-kick">Turismo</div>
+            <div class="c-title">DRAGO</div>
+            <div class="c-desc">Asistente con IA que conoce Lanzarote al detalle.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · Clientes -->
+    <section class="slide" id="s-clientes">
+      <p class="eyebrow" data-anim="rise"><span class="idx">05</span> Confían en nosotros</p>
+      <h2 data-anim="rise" data-delay="120">Clientes</h2>
+      <div class="stack" data-seq="150" data-base="330" data-tones="glass,navy,glass,flame,glass,navy">
+        <div class="card cli">
+          <div class="logo"><img src="assets/clients/lancelot-medios.png" alt="Lancelot Medios"></div>
+          <div class="c-body"><div class="c-title">Lancelot Medios</div><div class="sector">Grupo de comunicación</div></div>
+        </div>
+        <div class="card cli">
+          <div class="logo"><img src="assets/clients/martinez-abolafio.svg" alt="Grupo Martínez Abolafio"></div>
+          <div class="c-body"><div class="c-title">Grupo Martínez Abolafio</div><div class="sector">Transporte marítimo</div></div>
+        </div>
+        <div class="card cli">
+          <div class="logo"><img src="assets/clients/camara-lanzarote.png" alt="Cámara de Comercio de Lanzarote"></div>
+          <div class="c-body"><div class="c-title">Cámara de Comercio</div><div class="sector">Lanzarote y La Graciosa</div></div>
+        </div>
+        <div class="card cli">
+          <div class="logo"><img src="assets/clients/confederacion-lanzarote.png" alt="Confederación Empresarial de Lanzarote"></div>
+          <div class="c-body"><div class="c-title">Confederación Empresarial</div><div class="sector">Lanzarote</div></div>
+        </div>
+        <div class="card cli">
+          <div class="logo"><img src="assets/clients/kai-koa.png" alt="KAI KOA"></div>
+          <div class="c-body"><div class="c-title">KAI KOA</div><div class="sector">Deporte y ocio</div></div>
+        </div>
+        <div class="card cli">
+          <div class="logo"><img src="assets/clients/mihub.png" alt="MiHUB"></div>
+          <div class="c-body"><div class="c-title">MiHUB</div><div class="sector">Innovación</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 · Casos de éxito -->
+    <section class="slide" id="s-casos">
+      <p class="eyebrow" data-anim="rise"><span class="idx">06</span> Resultados reales</p>
+      <h2 data-anim="rise" data-delay="120">Casos de <span class="hot">éxito</span></h2>
+      <div class="stack" data-seq="190" data-base="330" data-tones="flame,navy,glass">
+        <div class="card metric">
+          <div class="big"><span data-count="15" data-cdelay="620">0</span><small>h/sem</small></div>
+          <div class="c-body">
+            <div class="what">ahorradas con analítica de redes sociales</div>
+            <div class="who">Plataforma de informes automáticos para un grupo de medios de comunicación.</div>
+          </div>
+        </div>
+        <div class="card metric">
+          <div class="big"><span data-count="40" data-cdelay="810">0</span><small>%</small></div>
+          <div class="c-body">
+            <div class="what">menos errores documentales</div>
+            <div class="who">Asistente de documentación con IA para un operador de transporte marítimo.</div>
+          </div>
+        </div>
+        <div class="card metric">
+          <div class="big"><span data-count="70" data-cdelay="1000">0</span><small>%</small></div>
+          <div class="c-body">
+            <div class="what">del proceso, automatizado</div>
+            <div class="who">Cuadro de mando económico que se actualiza sin intervención manual.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · Medios -->
+    <section class="slide" id="s-medios">
+      <p class="eyebrow" data-anim="rise"><span class="idx">07</span> Nos han mencionado en</p>
+      <h2 data-anim="rise" data-delay="120">Han hablado<br><span class="thin">de nosotros.</span></h2>
+      <div class="stack" data-seq="200" data-base="340" data-tones="flame,glass,navy">
+        <div class="card press">
+          <div class="c-kick">Prensa escrita · Diciembre 2025</div>
+          <div class="q">«Atomtech, la start-up de Lanzarote que asesora a pymes isleñas sobre lo que piensan sus clientes»</div>
+          <div class="foot-row">
+            <span class="src">La Voz de Lanzarote</span>
+            <span class="src-logo"><img src="assets/clients/lavoz-lanzarote.png" alt="La Voz de Lanzarote"></span>
+          </div>
+        </div>
+        <div class="card press">
+          <div class="c-kick">Entrevista en televisión · Septiembre 2025</div>
+          <div class="q">Atomtech en El Magazine de Biosfera: quiénes somos y cómo aplicamos la IA en la isla.</div>
+          <div class="foot-row">
+            <span class="src">BiosferaTV</span>
+            <span class="src-logo"><img src="assets/clients/biosfera-tv.png" alt="BiosferaTV"></span>
+          </div>
+        </div>
+        <div class="card press">
+          <div class="c-kick">Entrevista en televisión · Julio 2026</div>
+          <div class="q">DRAGO, la guía digital de Lanzarote, presentada en El Magazine de Biosfera.</div>
+          <div class="foot-row">
+            <span class="src">BiosferaTV</span>
+            <span class="src-logo"><img src="assets/clients/biosfera-tv.png" alt="BiosferaTV"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 · Contacto -->
+    <section class="slide" id="s-contacto">
+      <p class="eyebrow" data-anim="rise"><span class="idx">08</span> Estás en la puerta</p>
+      <h2 data-anim="rise" data-delay="120">¿Hablamos?<br><span class="hot">Pasa y cuéntanos.</span></h2>
+      <p class="lead" data-anim="rise" data-delay="280">Primera reunión sin compromiso. Te diremos <b>por dónde empezar</b> y qué puedes ganar con ello.</p>
+      <div class="stack" data-seq="140" data-base="480" data-tones="flame,glass,glass,navy">
+        <div class="card ct big">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.8 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.8-3.8-9S9.5 5.7 12 3z"/></svg></div>
+          <div class="c-body"><div class="c-kick">Web</div><div class="c-title">atomtech.es</div></div>
+        </div>
+        <div class="card ct">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.13.96.36 1.9.7 2.8a2 2 0 0 1-.45 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.45c.9.34 1.84.57 2.8.7a2 2 0 0 1 1.7 2z"/></svg></div>
+          <div class="c-body"><div class="c-kick">Teléfono</div><div class="c-title">+34 928 09 14 99</div></div>
+        </div>
+        <div class="card ct">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></div>
+          <div class="c-body"><div class="c-kick">Correo</div><div class="c-title">info@atomtech.es</div></div>
+        </div>
+        <div class="card ct">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div class="c-body"><div class="c-kick">Dónde estamos</div><div class="c-title">Marina Innova Hub</div><div class="c-desc">Av. Olof Palme · 35500 Arrecife, Lanzarote</div></div>
+        </div>
+      </div>
+    </section>
+
+    <footer id="foot">
+      <div id="meter"></div>
+      <div id="ticker"><div id="ticker-track"></div></div>
+    </footer>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ——————————————————————————————————————————————————————————
+     Motor de línea de tiempo determinista.
+     Todo fotograma es función pura de t (ms desde el inicio del
+     bucle). window.__display.renderAt(t) reproduce cualquier
+     instante exacto, así que el GIF exportado es idéntico a lo
+     que se ve en pantalla: no se graba, se recalcula.
+  —————————————————————————————————————————————————————————— */
+
+  const W = 1080, H = 1920;
+
+  const SLIDES = [
+    { id: "s-intro",     dur: 8500  },
+    { id: "s-quienes",   dur: 11000 },
+    { id: "s-servicios", dur: 13500 },
+    { id: "s-productos", dur: 12000 },
+    { id: "s-clientes",  dur: 12000 },
+    { id: "s-casos",     dur: 11000 },
+    { id: "s-medios",    dur: 11000 },
+    { id: "s-contacto",  dur: 11500 },
+  ];
+  const TOTAL = SLIDES.reduce((a, s) => a + s.dur, 0);
+  const ENTER = 900;   // duración de entrada de cada elemento
+  const EXIT  = 620;   // fundido de salida de la diapositiva
+
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const stage = document.getElementById("stage");
+  const slideEls = SLIDES.map(s => document.getElementById(s.id));
+  const starts = [];
+  { let acc = 0; for (const s of SLIDES) { starts.push(acc); acc += s.dur; } }
+
+  /* — Escalado del escenario vertical a la ventana — */
+  function fit() {
+    const k = Math.min(innerWidth / W, innerHeight / H);
+    stage.style.transform =
+      `translate(${(innerWidth - W * k) / 2}px, ${(innerHeight - H * k) / 2}px) scale(${k})`;
+  }
+  addEventListener("resize", fit);
+  fit();
+
+  /* — Preparación: tonos y dirección de entrada se asignan por índice,
+       de modo que el HTML solo describe el contenido. — */
+  const TONE = { flame: "t-flame", glass: "t-glass", navy: "t-navy" };
+  for (const box of document.querySelectorAll("[data-seq]")) {
+    const stagger = +box.dataset.seq;
+    const base = +(box.dataset.base || 0);
+    const tones = (box.dataset.tones || "").split(",").filter(Boolean);
+    [...box.children].forEach((child, i) => {
+      // Alternan lado: impar entra por la izquierda, par por la derecha
+      const fromLeft = i % 2 === 0;
+      child.dataset.anim = fromLeft ? "inLeft" : "inRight";
+      child.dataset.delay = String(base + i * stagger);
+      if (tones.length) child.classList.add(TONE[tones[i % tones.length]] || TONE.glass);
+      // La luz de borde va en el canto por el que entra la tarjeta
+      child.style.setProperty("--edge-dir", fromLeft ? "270deg" : "90deg");
+    });
+  }
+
+  /* — Cinta inferior — */
+  const items = [
+    "<b>atomtech.es</b>", "+34 928 09 14 99", "info@atomtech.es",
+    "Marina Innova Hub · Arrecife", "Desarrollo de software", "Big Data",
+    "IA aplicada", "Automatización",
+  ];
+  const html = items.join('<span class="sep">/</span>') + '<span class="sep">/</span>';
+  const track = document.getElementById("ticker-track");
+  track.innerHTML = html + html;
+  let half = 0;
+  const measure = () => { half = track.scrollWidth / 2; };
+
+  /* — Medidor segmentado, un tramo por diapositiva — */
+  const meter = document.getElementById("meter");
+  const segs = SLIDES.map(() => {
+    const s = document.createElement("div");
+    s.className = "seg";
+    s.appendChild(document.createElement("i"));
+    meter.appendChild(s);
+    return s;
+  });
+
+  const aurora = document.getElementById("aurora");
+
+  /* — Easings — */
+  const clamp01 = v => (v < 0 ? 0 : v > 1 ? 1 : v);
+  const easeOut = p => 1 - Math.pow(1 - p, 3);
+  const easeOutQuint = p => 1 - Math.pow(1 - p, 5);
+
+  /* — Fondo: retícula técnica y brasa lenta, con semilla fija — */
+  const ctx = document.getElementById("bg").getContext("2d");
+  const rnd = (seed => () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  })(20260912);
+  const motes = Array.from({ length: 46 }, () => ({
+    x: rnd() * W, y: rnd() * H,
+    r: 0.9 + rnd() * 1.5,
+    per: 5000 + rnd() * 7000,
+    ph: rnd() * Math.PI * 2,
+    vy: 5 + rnd() * 11,
+  }));
+
+  function drawBg(t) {
+    ctx.fillStyle = "#0A0B0C";
+    ctx.fillRect(0, 0, W, H);
+
+    // Brasa que respira en la parte baja: el contrapunto cálido de la aurora
+    const bob = reduce ? 0 : Math.sin((t / 26000) * Math.PI * 2);
+    const g = ctx.createRadialGradient(W * 0.5 + bob * 150, H * 0.82, 0, W * 0.5, H * 0.82, 760);
+    g.addColorStop(0, "rgba(255, 79, 43, 0.10)");
+    g.addColorStop(0.55, "rgba(27, 42, 74, 0.14)");
+    g.addColorStop(1, "rgba(10, 11, 12, 0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+
+    // Retícula fina: da escala y sensación de instrumento, no de fondo decorado
+    ctx.strokeStyle = "rgba(245, 240, 238, 0.030)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = 60; x < W; x += 60) { ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, H); }
+    for (let y = 60; y < H; y += 60) { ctx.moveTo(0, y + 0.5); ctx.lineTo(W, y + 0.5); }
+    ctx.stroke();
+
+    for (const m of motes) {
+      const y = (m.y - (reduce ? 0 : (t / 1000) * m.vy)) % (H + 40);
+      const a = 0.10 + 0.34 * (0.5 + 0.5 * Math.sin((t / m.per) * Math.PI * 2 + m.ph));
+      ctx.beginPath();
+      ctx.arc(m.x, y < 0 ? y + H + 40 : y, m.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 138, 92, ${a.toFixed(3)})`;
+      ctx.fill();
+    }
+  }
+
+  /* — Animación de una diapositiva en su tiempo local — */
+  function renderSlide(el, dur, local) {
+    el.style.opacity = clamp01((dur - local) / EXIT);
+
+    for (const node of el.querySelectorAll("[data-anim]")) {
+      const delay = +(node.dataset.delay || 0);
+      const raw = clamp01((local - 100 - delay) / ENTER);
+      const kind = node.dataset.anim;
+
+      if (kind === "rule") {                       // el filete de la intro se abre
+        node.style.width = `${easeOut(raw) * 460}px`;
+        node.style.opacity = raw;
+        continue;
+      }
+
+      node.style.opacity = Math.min(1, raw * 1.6);
+      if (reduce) { node.style.transform = "none"; continue; }
+
+      if (kind === "inLeft" || kind === "inRight") {
+        const p = easeOutQuint(raw);
+        const dir = kind === "inLeft" ? -1 : 1;
+        node.style.transform = `translateX(${dir * (1 - p) * 1180}px)`;
+        // La luz del canto brilla al entrar y se apaga al posarse
+        node.style.setProperty("--edge", (Math.sin(raw * Math.PI) * 0.9).toFixed(3));
+      } else {
+        node.style.transform = `translateY(${(1 - easeOut(raw)) * 42}px)`;
+      }
+    }
+
+    for (const node of el.querySelectorAll("[data-count]")) {
+      const p = easeOut(clamp01((local - +(node.dataset.cdelay || 0)) / 1400));
+      node.textContent = Math.round(+node.dataset.count * p);
+    }
+  }
+
+  /* — Fotograma completo — */
+  let last = -1;
+  function render(tAbs) {
+    const t = ((tAbs % TOTAL) + TOTAL) % TOTAL;
+
+    let idx = SLIDES.length - 1;
+    for (let i = 0; i < SLIDES.length; i++) {
+      if (t < starts[i] + SLIDES[i].dur) { idx = i; break; }
+    }
+    const local = t - starts[idx];
+
+    if (idx !== last) {
+      slideEls.forEach((el, i) => el.classList.toggle("on", i === idx));
+      segs.forEach((s, i) => s.classList.toggle("done", i < idx));
+      last = idx;
+    }
+
+    renderSlide(slideEls[idx], SLIDES[idx].dur, local);
+
+    segs.forEach((s, i) => {
+      s.firstChild.style.width = i === idx ? `${(local / SLIDES[idx].dur) * 100}%` : (i < idx ? "100%" : "0%");
+    });
+
+    if (!half) measure();
+    if (half) track.style.transform = `translateX(${-((t / 1000) * 62) % half}px)`;
+
+    // La aurora gira muy despacio: el header nunca está del todo quieto
+    aurora.style.transform = reduce ? "none" : `rotate(${(t / 90000) * 360}deg)`;
+
+    drawBg(t);
+  }
+
+  /* — Reproducción en vivo y API de exportación — */
+  let playing = true, t0 = performance.now();
+  (function tick(now) {
+    if (playing) render(now - t0);
+    requestAnimationFrame(tick);
+  })(performance.now());
+
+  window.__display = {
+    w: W, h: H, total: TOTAL,
+    slides: SLIDES.map((s, i) => ({ id: s.id, start: starts[i], dur: s.dur })),
+    renderAt(ms) { playing = false; render(ms); },
+    play() { playing = true; t0 = performance.now(); },
+  };
+
+  if (document.fonts) document.fonts.ready.then(measure);
+})();
+</script>
