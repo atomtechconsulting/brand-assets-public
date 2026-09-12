@@ -2,7 +2,7 @@
   "name": "atomtech-display",
   "private": true,
   "type": "module",
-  "description": "Pantalla de presentación 16:9 de Atomtech y exportador a GIF",
+  "description": "Pantalla vertical 1080x1920 de Atomtech y exportador a GIF",
   "scripts": {
     "export": "node export-gif.mjs"
   },
