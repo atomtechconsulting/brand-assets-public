@@ -29,8 +29,9 @@ Todo sale de atomtech.es, no de una plantilla genérica:
   hero de la web, girando muy despacio para que nunca esté del todo quieta.
 - **Tarjetas.** Ocupan el ancho completo y entran alternando lado —una por la
   izquierda, la siguiente por la derecha— con una luz roja que barre el canto
-  por el que entran y se apaga al posarse. El tono rota entre cuatro: cristal
-  oscuro, rojo, marino y **papel claro**, que es el golpe de contraste.
+  por el que entran y se apaga al posarse. El tono rota entre tres: cristal
+  oscuro, rojo y marino. Dentro de cada diapositiva todas miden lo mismo y el
+  bloque ocupa siempre la misma franja, así el bucle no da saltos.
 - **Fondo.** Retícula técnica fina y brasa lenta, no un cielo estrellado.
 - **Logos de clientes.** En silueta blanca, exactamente el mismo tratamiento
   (`brightness-0 invert`) que el muro de logos de atomtech.es.
@@ -67,17 +68,17 @@ xset s off && xset -dpms && xset s noblank
 
 ## El bucle
 
-Dura **89 segundos** y encadena ocho diapositivas:
+Dura **90,5 segundos** y encadena ocho diapositivas:
 
 | # | Diapositiva | Duración | Contenido |
 |---|---|---|---|
 | 1 | Intro | 8,5 s | Logotipo y lema |
 | 2 | Quiénes somos | 11 s | Posicionamiento y cifras de la empresa |
-| 3 | Servicios | 13,5 s | Los 7 servicios, con el diagnóstico destacado |
+| 3 | Servicios | 13,5 s | Los 7 servicios, encabezados por desarrollo y Big Data |
 | 4 | Productos | 12 s | RAG-PRO, LICITA-PRO, MAGEC, VULCAN, DRAGO |
 | 5 | Clientes | 12 s | Los seis clientes, con su logo |
 | 6 | Casos de éxito | 11 s | Las tres métricas de resultado |
-| 7 | Medios | 9,5 s | La Voz de Lanzarote y BiosferaTV |
+| 7 | Medios | 11 s | Un artículo en La Voz de Lanzarote y dos entrevistas en BiosferaTV |
 | 8 | Contacto | 11,5 s | Web, teléfono, correo y dirección |
 
 Los datos de contacto no dependen del turno de la diapositiva 8: van siempre
@@ -92,7 +93,7 @@ principio del `<script>`, en la constante `SLIDES`: cambia `dur` (en
 milisegundos) y el exportador se adapta solo.
 
 El tono y el lado de entrada de cada tarjeta **no se escriben a mano**. Cada
-contenedor de tarjetas declara `data-tones="flame,glass,navy,paper"` y
+contenedor de tarjetas declara `data-tones="flame,glass,navy"` y
 `data-seq` (milisegundos entre tarjeta y tarjeta), y el motor reparte tonos,
 lados y retardos por índice. Para añadir un servicio basta con copiar un
 bloque `<div class="card">`: entra por el lado y con el tono que le tocan.
@@ -130,8 +131,8 @@ paleta óptima del bucle entero y después se aplica con difuminado ordenado.
 
 ### Peso orientativo
 
-Un GIF de 89 segundos es pesado por definición: guarda cada fotograma
-completo. Medido: a 540 px de ancho y 12,5 fps pesa 40 MB.
+Un GIF de 90 segundos es pesado por definición: guarda cada fotograma
+completo. Medido: a 540 px de ancho y 12,5 fps pesa unos 41 MB.
 
 - **Para la pantalla de la puerta**, usa el HTML directamente. Se ve mejor, va
   más fluido y no pesa nada.
@@ -145,6 +146,17 @@ node export-gif.mjs --width 1080                 # GIF a máxima resolución
 node export-gif.mjs --slide 6 --width 540        # solo los casos de éxito
 node export-gif.mjs --format mp4 --width 1080    # vídeo vertical 1080×1920
 ```
+
+## Menciones en prensa
+
+Las tres menciones de la diapositiva 7 están verificadas en su enlace original,
+listado en atomtech.es:
+
+| Medio | Tipo | Fecha | Enlace |
+|---|---|---|---|
+| La Voz de Lanzarote | Prensa escrita | dic. 2025 | [Artículo](https://www.lavozdelanzarote.com/ekonomus/emprendedores/atomtech-start-up-lanzarote-asesora-pymes-islenas-sobre-piensan-sus-clientes_239967_102.html) |
+| BiosferaTV | Entrevista | sept. 2025 | [El Magazine de Biosfera (30/09/25)](https://youtu.be/3exsNnQDxA4) |
+| BiosferaTV | Entrevista sobre DRAGO | jul. 2026 | [El Magazine (15/07/2026)](https://youtu.be/I0sVUoAhAxc) |
 
 ## Logos de clientes
 
